@@ -1,0 +1,4 @@
+selenium>=4.8
+webdriver-manager>=3.8
+pytest>=7.0
+requests>=2.28
