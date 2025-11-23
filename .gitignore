@@ -45,3 +45,5 @@ htmlcov/
 
 # Misc
 *.log
+tests/new-user.json
+.DS_Store
