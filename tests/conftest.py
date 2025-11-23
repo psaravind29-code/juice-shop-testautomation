@@ -64,11 +64,17 @@ def driver():
 def ensure_user_registered(driver, user):
     """Register the test user once per session (non-fatal if fails)."""
     try:
-        print("\n[Setup] Attempting to register test user...")
+        print("\n" + "="*80)
+        print("TASK 2: USER REGISTRATION")
+        print("="*80)
+        print("[Setup] Attempting to register test user...")
+        print(f"[Setup] → Navigating to registration page...")
         driver.get(BASE_URL + "/#/register")
         time.sleep(2)
+        print(f"[Setup] ✓ Registration page loaded")
         
         # Remove overlays
+        print(f"[Setup] → Removing overlays...")
         try:
             driver.execute_script("""
             const selectors = ['.cdk-overlay-backdrop', '.cdk-overlay-backdrop-showing', 
@@ -79,15 +85,19 @@ def ensure_user_registered(driver, user):
             """)
         except Exception:
             pass
+        time.sleep(0.5)
+        print(f"[Setup] ✓ Overlays removed")
         
         # Fill email
+        print(f"[Setup] → Filling registration form...")
         email_inputs = driver.find_elements(By.CSS_SELECTOR, 
                                            "input[type='email'], input[name='email']")
         visible_emails = [e for e in email_inputs if e.is_displayed()]
         if visible_emails:
             visible_emails[0].clear()
             visible_emails[0].send_keys(user["email"])
-            print(f"[Setup]   - Email: {user['email']}")
+            print(f"[Setup]   ✓ Email entered: {user['email']}")
+            time.sleep(0.5)
         
         # Fill password
         pwd_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='password']")
@@ -95,22 +105,28 @@ def ensure_user_registered(driver, user):
         if len(visible_pwds) >= 1:
             visible_pwds[0].clear()
             visible_pwds[0].send_keys(user["password"])
+            time.sleep(0.3)
             if len(visible_pwds) >= 2:
                 visible_pwds[1].clear()
                 visible_pwds[1].send_keys(user["password"])
-            print("[Setup]   - Password entered")
+            print("[Setup]   ✓ Password entered (both fields)")
+            time.sleep(0.5)
         
         # Fill security answer
+        print(f"[Setup]   → Filling security answer...")
         try:
             sec_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='text']")
             visible_sec = [s for s in sec_inputs if s.is_displayed()]
             if visible_sec:
                 visible_sec[0].clear()
                 visible_sec[0].send_keys("TestAnswer")
+                print("[Setup]   ✓ Security answer entered")
+                time.sleep(0.5)
         except Exception:
             pass
         
         # Click Register
+        print(f"[Setup] → Clicking Register button...")
         regs = driver.find_elements(By.XPATH, 
                                     "//button[contains(., 'Register') or contains(., 'Sign up')]")
         if regs:
@@ -119,10 +135,14 @@ def ensure_user_registered(driver, user):
             except Exception:
                 driver.execute_script("arguments[0].click();", regs[0])
             time.sleep(2)
-            print("[Setup] ✓ Register clicked")
+            print("[Setup] ✓ Registration submitted")
+            print("="*80)
+            print()
             
     except Exception as e:
         print(f"[Setup] Registration attempt finished: {type(e).__name__}")
+        print("="*80)
+        print()
     
     yield
 
@@ -164,11 +184,15 @@ def login(driver, user):
     2. Click fallbacks (normal -> JS -> remove overlays + JS)
     3. Graceful degradation with non-fatal exceptions
     """
+    print("\n" + "="*80)
+    print("TASK 1: AUTHENTICATE & LOGIN")
+    print("="*80)
     logger.info(f"Starting auto-login for {user['email']}")
     wait = WebDriverWait(driver, 15)
+    print("[Login] → Navigating to home page...")
     driver.get(BASE_URL)
     time.sleep(2)
-    print("  ✓ Home page loaded")
+    print("[Login] ✓ Home page loaded")
     
     _remove_overlays(driver)
     logger.debug("Overlays removed on page load")
@@ -177,10 +201,10 @@ def login(driver, user):
     # Open account menu
     try:
         acct_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarAccount")))
-        print("  → Clicking Account menu...")
+        print("[Login] → Clicking Account menu...")
         _click_with_fallback(driver, acct_btn)
         logger.debug("Account menu clicked")
-        print("  ✓ Account menu opened")
+        print("[Login] ✓ Account menu opened")
         time.sleep(2)
     except Exception as e:
         logger.warning(f"Could not click account menu: {type(e).__name__}")
@@ -189,10 +213,10 @@ def login(driver, user):
     # Click login button
     try:
         login_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarLoginButton")))
-        print("  → Clicking Login button...")
+        print("[Login] → Clicking Login button...")
         _click_with_fallback(driver, login_btn)
         logger.debug("Login button clicked")
-        print("  ✓ Login dialog opened")
+        print("[Login] ✓ Login dialog opened")
         time.sleep(2)
     except Exception as e:
         logger.warning(f"Could not click login button: {type(e).__name__}")
@@ -201,11 +225,11 @@ def login(driver, user):
     # Fill email
     try:
         email_input = wait.until(EC.visibility_of_element_located((By.ID, "email")))
-        print(f"  → Typing email: {user['email']}")
+        print(f"[Login] → Typing email: {user['email']}")
         email_input.clear()
         email_input.send_keys(user["email"])
         logger.debug(f"Email filled: {user['email']}")
-        print("  ✓ Email entered")
+        print("[Login] ✓ Email entered")
         time.sleep(1)
     except Exception as e:
         logger.warning(f"Could not fill email: {type(e).__name__}")
@@ -214,11 +238,11 @@ def login(driver, user):
     # Fill password
     try:
         pwd_input = driver.find_element(By.ID, "password")
-        print("  → Typing password...")
+        print("[Login] → Typing password...")
         pwd_input.clear()
         pwd_input.send_keys(user["password"])
         logger.debug("Password filled")
-        print("  ✓ Password entered")
+        print("[Login] ✓ Password entered")
         time.sleep(1)
     except Exception as e:
         logger.warning(f"Could not fill password: {type(e).__name__}")
@@ -227,11 +251,11 @@ def login(driver, user):
     # Submit form
     try:
         _remove_overlays(driver)
-        print("  → Clicking Login button...")
+        print("[Login] → Clicking Submit button...")
         submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         _click_with_fallback(driver, submit_btn)
         logger.debug("Login form submitted")
-        print("  ✓ Login form submitted")
+        print("[Login] ✓ Login form submitted")
         time.sleep(3)
     except Exception as e:
         logger.warning(f"Could not submit login form: {type(e).__name__}")
@@ -242,7 +266,9 @@ def login(driver, user):
         wait.until(EC.presence_of_element_located(
             (By.XPATH, "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         ))
-        print("  ✓ Login successful!\n")
+        print("[Login] ✓ Login successful!")
+        print("="*80)
+        print()
         logger.info(f"✓ Login successful for {user['email']}")
         time.sleep(1)
     except Exception as e:
@@ -253,15 +279,27 @@ def login(driver, user):
     
     yield
     
-    # Teardown: logout
+    # Teardown: logout (Task 3)
+    print("="*80)
+    print("TASK 3: CLEANUP & LOGOUT")
+    print("="*80)
+    print("[Logout] → Logging out user...")
     try:
         _remove_overlays(driver)
         acct_btn = driver.find_element(By.ID, "navbarAccount")
+        print("[Logout] → Clicking Account menu...")
         _click_with_fallback(driver, acct_btn)
+        time.sleep(1)
         logout_btns = driver.find_elements(By.XPATH, 
                                           "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         if logout_btns:
+            print("[Logout] → Clicking Logout button...")
             _click_with_fallback(driver, logout_btns[0])
+            time.sleep(1)
+            print("[Logout] ✓ Logged out successfully")
             logger.debug(f"✓ Logout completed")
     except Exception as e:
         logger.debug(f"Logout teardown skipped: {type(e).__name__}")
+    
+    print("="*80)
+    print()
