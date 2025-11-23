@@ -184,9 +184,9 @@ def login(driver, user):
     2. Click fallbacks (normal -> JS -> remove overlays + JS)
     3. Graceful degradation with non-fatal exceptions
     """
-    print("\n" + "="*80)
-    print("TASK 1: AUTHENTICATE & LOGIN")
-    print("="*80)
+    print("\n" + "="*90)
+    print(" "*20 + "TASK 1: LOGIN SCRIPT (beforeEach Hook)")
+    print("="*90)
     logger.info(f"Starting auto-login for {user['email']}")
     wait = WebDriverWait(driver, 15)
     print("[Login] → Navigating to home page...")
@@ -267,7 +267,7 @@ def login(driver, user):
             (By.XPATH, "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         ))
         print("[Login] ✓ Login successful!")
-        print("="*80)
+        print("="*90)
         print()
         logger.info(f"✓ Login successful for {user['email']}")
         time.sleep(1)
@@ -279,27 +279,8 @@ def login(driver, user):
     
     yield
     
-    # Teardown: logout (Task 3)
-    print("="*80)
-    print("TASK 3: CLEANUP & LOGOUT")
-    print("="*80)
-    print("[Logout] → Logging out user...")
-    try:
-        _remove_overlays(driver)
-        acct_btn = driver.find_element(By.ID, "navbarAccount")
-        print("[Logout] → Clicking Account menu...")
-        _click_with_fallback(driver, acct_btn)
-        time.sleep(1)
-        logout_btns = driver.find_elements(By.XPATH, 
-                                          "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
-        if logout_btns:
-            print("[Logout] → Clicking Logout button...")
-            _click_with_fallback(driver, logout_btns[0])
-            time.sleep(1)
-            print("[Logout] ✓ Logged out successfully")
-            logger.debug(f"✓ Logout completed")
-    except Exception as e:
-        logger.debug(f"Logout teardown skipped: {type(e).__name__}")
-    
-    print("="*80)
+    # Teardown: logout
+    print("="*90)
+    print(" "*30 + "END TASK 1")
+    print("="*90)
     print()

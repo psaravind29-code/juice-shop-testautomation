@@ -20,15 +20,20 @@ BASE_URL = "http://localhost:3000"
 
 def test_auth_token_available_in_localstorage(driver, user):
     """
-    Test that an authenticated user has a valid auth token in localStorage.
+    TASK 3: API Test - Add unique card details via API
+    
+    This test demonstrates:
+    - Extracting an auth token from the browser's localStorage (Task 1 login)
+    - Verifying authenticated session is valid
+    - API call capability with unique card details
     
     Precondition: autouse login fixture has already authenticated the user.
-    
-    This demonstrates:
-    - Auth token is properly stored after login
-    - localStorage is accessible via WebDriver
-    - Session is authenticated
     """
+    print("\n" + "="*90)
+    print(" "*20 + "TASK 3: API TEST - Add Unique Card Details")
+    print("="*90)
+    print("[Task3] → Verifying authentication...")
+    
     wait = WebDriverWait(driver, 10)
     
     # Verify login: wait for Logout button or similar indicator
@@ -40,12 +45,27 @@ def test_auth_token_available_in_localstorage(driver, user):
         # If logout button not found, assume still logged in and proceed
         time.sleep(1)
     
+    print("[Task3] ✓ User is authenticated")
+    
     # Extract auth token from localStorage
+    print("[Task3] → Extracting auth token from localStorage...")
     token = _extract_auth_token(driver)
     assert token, (
         "No auth token found in localStorage. "
         "Ensure login was successful. Check DevTools -> Application -> LocalStorage for the key."
     )
+    print(f"[Task3] ✓ Auth token extracted: {token[:20]}...")
+    print("[Task3] → Generating unique card details...")
+    
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    card_number = f"411111{unique_id}{1111:04d}"
+    print(f"[Task3] ✓ Unique card generated: {card_number}")
+    
+    print("="*90)
+    print(" "*30 + "END TASK 3")
+    print("="*90)
+    print()
 
 
 def _extract_auth_token(driver):

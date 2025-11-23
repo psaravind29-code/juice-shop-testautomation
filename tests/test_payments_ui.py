@@ -18,16 +18,19 @@ BASE_URL = "http://localhost:3000"
 
 def test_add_card_ui(driver):
     """
-    Test that a logged-in user can navigate to Payments page.
+    TASK 2: UI Test - Navigate to My Payments and add card details
     
     This test demonstrates:
-    - Autouse login fixture maintaining authenticated session
-    - Navigation to protected page (Payment Methods)
+    - Autouse login fixture maintaining authenticated session (Task 1)
+    - Navigation to protected page (Payment Methods / My Payments)
     - Overlay handling in Angular Material app
     - Stable locators and WebDriver waits
     
     Precondition: autouse login fixture has already authenticated the user.
     """
+    print("\n" + "="*90)
+    print(" "*15 + "TASK 2: UI TEST - Navigate to My Payments & Add Card")
+    print("="*90)
     wait = WebDriverWait(driver, 15)
     
     # Generate unique test card number
@@ -35,31 +38,30 @@ def test_add_card_ui(driver):
     card_number = f"411111111111{last4}"
     
     # Navigate directly to Payment Methods page (authenticated from login fixture)
-    print("\n" + "="*80)
-    print("TASK 4: BUSINESS LOGIC - Navigate to Payment Methods")
-    print("="*80)
-    print("[Test] → Navigating to Payment Methods page...")
+    print("[Task2] → Navigating to My Payments page...")
     driver.get(f"{BASE_URL}/#/PaymentMethods")
     time.sleep(2)
-    print("[Test] ✓ Page loaded")
+    print("[Task2] ✓ My Payments page loaded")
     
     # Remove overlays
-    print("[Test] → Removing overlays...")
+    print("[Task2] → Removing overlays...")
     _remove_overlays(driver)
     time.sleep(1)
-    print("[Test] ✓ Overlays removed")
+    print("[Task2] ✓ Overlays removed")
     
     # Verify we're on the Payment Methods page by checking page source
     page_source = driver.page_source
     
     # Page should contain payment-related content
-    print("[Test] → Checking page content...")
+    print("[Task2] → Verifying payment page content...")
     assert "Payment" in page_source or "payment" in page_source, (
         "Payment Methods page content not found. "
         f"Current URL: {driver.current_url}"
     )
-    print("[Test] ✓ Page contains payment content")
-    print("="*80)
+    print("[Task2] ✓ Payment page verified")
+    print("="*90)
+    print(" "*30 + "END TASK 2")
+    print("="*90)
     print()
     
     # Try to find and fill a payment form if it exists
