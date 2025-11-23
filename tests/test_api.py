@@ -4,14 +4,14 @@ API Test: Add a payment card using the backend API with an auth token.
 This test demonstrates:
 - Extracting an auth token from the browser's localStorage
 - Making authenticated API calls using the token
-- Generating unique card details for each test run
+- Generating unique card details for each test run (using UUID)
 """
 import requests
-import random
-import time
+import uuid
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import time
 
 BASE_URL = "http://localhost:3000"
 
@@ -41,9 +41,9 @@ def test_add_card_api_using_token_from_localstorage(driver, user):
         "Ensure login was successful. Check DevTools -> Application -> LocalStorage for the key."
     )
     
-    # Prepare unique card details
-    last4 = str(random.randint(1000, 9999))
-    card_number = f"411111111111{last4}"
+    # Prepare unique card details using UUID for guaranteed uniqueness
+    unique_id = str(uuid.uuid4())[:8]  # Use first 8 chars of UUID
+    card_number = f"411111{unique_id}{1111:04d}"  # Format: 4111 11 XXXXXXXX 1111
     
     # Construct API request
     endpoint = f"{BASE_URL}/api/PaymentMethods"

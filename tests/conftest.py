@@ -1,9 +1,16 @@
 """
 Pytest fixtures for Juice Shop test automation.
+
+Provides:
+- driver: Selenium WebDriver instance
+- user: Test account credentials from new-user.json
+- ensure_user_registered: Session-scoped fixture to register test user
+- login: Auto-login fixture that runs before each test
 """
 import json
 import os
 import time
+import logging
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -14,6 +21,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL = "http://localhost:3000"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -27,6 +41,7 @@ def user():
 @pytest.fixture(scope="session")
 def driver():
     """Create and return a Chrome WebDriver instance."""
+    logger.info("Initializing Chrome WebDriver...")
     opts = Options()
     opts.add_argument("--headless=new")
     opts.add_argument("--no-sandbox")
@@ -36,12 +51,13 @@ def driver():
     
     service = Service(ChromeDriverManager().install())
     d = webdriver.Chrome(service=service, options=opts)
-    d.set_window_size(1280, 900)
+    d.set_window_size(1920, 1080)  # Desktop view for better compatibility
     
-    print("\n✓ WebDriver initialized")
+    logger.info("✓ WebDriver initialized (headless, 1920x1080)")
     yield d
+    
     d.quit()
-    print("✓ WebDriver closed")
+    logger.info("✓ WebDriver closed")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -140,27 +156,40 @@ def _click_with_fallback(driver, element):
 
 @pytest.fixture(autouse=True)
 def login(driver, user):
-    """Auto-login before each test with overlay handling."""
+    """
+    Auto-login before each test with overlay handling.
+    
+    Handles Angular Material overlays that can block clicks via:
+    1. Early overlay removal on page load
+    2. Click fallbacks (normal -> JS -> remove overlays + JS)
+    3. Graceful degradation with non-fatal exceptions
+    """
+    logger.info(f"Starting auto-login for {user['email']}")
     wait = WebDriverWait(driver, 15)
     driver.get(BASE_URL)
     time.sleep(1)
     
     _remove_overlays(driver)
+    logger.debug("Overlays removed on page load")
     
     # Open account menu
     try:
         acct_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarAccount")))
         _click_with_fallback(driver, acct_btn)
+        logger.debug("Account menu clicked")
         time.sleep(0.5)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Could not click account menu: {type(e).__name__}")
         pass
     
     # Click login button
     try:
         login_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarLoginButton")))
         _click_with_fallback(driver, login_btn)
+        logger.debug("Login button clicked")
         time.sleep(0.5)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Could not click login button: {type(e).__name__}")
         pass
     
     # Fill email
@@ -168,7 +197,9 @@ def login(driver, user):
         email_input = wait.until(EC.visibility_of_element_located((By.ID, "email")))
         email_input.clear()
         email_input.send_keys(user["email"])
-    except Exception:
+        logger.debug(f"Email filled: {user['email']}")
+    except Exception as e:
+        logger.warning(f"Could not fill email: {type(e).__name__}")
         pass
     
     # Fill password
@@ -176,7 +207,9 @@ def login(driver, user):
         pwd_input = driver.find_element(By.ID, "password")
         pwd_input.clear()
         pwd_input.send_keys(user["password"])
-    except Exception:
+        logger.debug("Password filled")
+    except Exception as e:
+        logger.warning(f"Could not fill password: {type(e).__name__}")
         pass
     
     # Submit form
@@ -184,7 +217,9 @@ def login(driver, user):
         _remove_overlays(driver)
         submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         _click_with_fallback(driver, submit_btn)
-    except Exception:
+        logger.debug("Login form submitted")
+    except Exception as e:
+        logger.warning(f"Could not submit login form: {type(e).__name__}")
         pass
     
     # Wait for login complete
@@ -192,7 +227,11 @@ def login(driver, user):
         wait.until(EC.presence_of_element_located(
             (By.XPATH, "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         ))
-    except Exception:
+        logger.info(f"✓ Login successful for {user['email']}")
+    except Exception as e:
+        logger.error(f"✗ Login verification failed: {type(e).__name__}. "
+                    f"Account '{user['email']}' may not exist in Juice Shop. "
+                    f"See REGISTRATION_REQUIRED.md for setup instructions.")
         time.sleep(2)
     
     yield
@@ -206,5 +245,6 @@ def login(driver, user):
                                           "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         if logout_btns:
             _click_with_fallback(driver, logout_btns[0])
-    except Exception:
-        pass
+            logger.debug(f"✓ Logout completed")
+    except Exception as e:
+        logger.debug(f"Logout teardown skipped: {type(e).__name__}")
