@@ -43,7 +43,7 @@ def driver():
     """Create and return a Chrome WebDriver instance."""
     logger.info("Initializing Chrome WebDriver...")
     opts = Options()
-    opts.add_argument("--headless=new")
+    # opts.add_argument("--headless=new")  # DISABLED: Uncomment to hide browser
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
@@ -167,17 +167,21 @@ def login(driver, user):
     logger.info(f"Starting auto-login for {user['email']}")
     wait = WebDriverWait(driver, 15)
     driver.get(BASE_URL)
-    time.sleep(1)
+    time.sleep(2)
+    print("  ✓ Home page loaded")
     
     _remove_overlays(driver)
     logger.debug("Overlays removed on page load")
+    time.sleep(1)
     
     # Open account menu
     try:
         acct_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarAccount")))
+        print("  → Clicking Account menu...")
         _click_with_fallback(driver, acct_btn)
         logger.debug("Account menu clicked")
-        time.sleep(0.5)
+        print("  ✓ Account menu opened")
+        time.sleep(2)
     except Exception as e:
         logger.warning(f"Could not click account menu: {type(e).__name__}")
         pass
@@ -185,9 +189,11 @@ def login(driver, user):
     # Click login button
     try:
         login_btn = wait.until(EC.element_to_be_clickable((By.ID, "navbarLoginButton")))
+        print("  → Clicking Login button...")
         _click_with_fallback(driver, login_btn)
         logger.debug("Login button clicked")
-        time.sleep(0.5)
+        print("  ✓ Login dialog opened")
+        time.sleep(2)
     except Exception as e:
         logger.warning(f"Could not click login button: {type(e).__name__}")
         pass
@@ -195,9 +201,12 @@ def login(driver, user):
     # Fill email
     try:
         email_input = wait.until(EC.visibility_of_element_located((By.ID, "email")))
+        print(f"  → Typing email: {user['email']}")
         email_input.clear()
         email_input.send_keys(user["email"])
         logger.debug(f"Email filled: {user['email']}")
+        print("  ✓ Email entered")
+        time.sleep(1)
     except Exception as e:
         logger.warning(f"Could not fill email: {type(e).__name__}")
         pass
@@ -205,9 +214,12 @@ def login(driver, user):
     # Fill password
     try:
         pwd_input = driver.find_element(By.ID, "password")
+        print("  → Typing password...")
         pwd_input.clear()
         pwd_input.send_keys(user["password"])
         logger.debug("Password filled")
+        print("  ✓ Password entered")
+        time.sleep(1)
     except Exception as e:
         logger.warning(f"Could not fill password: {type(e).__name__}")
         pass
@@ -215,9 +227,12 @@ def login(driver, user):
     # Submit form
     try:
         _remove_overlays(driver)
+        print("  → Clicking Login button...")
         submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         _click_with_fallback(driver, submit_btn)
         logger.debug("Login form submitted")
+        print("  ✓ Login form submitted")
+        time.sleep(3)
     except Exception as e:
         logger.warning(f"Could not submit login form: {type(e).__name__}")
         pass
@@ -227,7 +242,9 @@ def login(driver, user):
         wait.until(EC.presence_of_element_located(
             (By.XPATH, "//*[contains(text(), 'Logout') or contains(text(), 'Log out')]")
         ))
+        print("  ✓ Login successful!\n")
         logger.info(f"✓ Login successful for {user['email']}")
+        time.sleep(1)
     except Exception as e:
         logger.error(f"✗ Login verification failed: {type(e).__name__}. "
                     f"Account '{user['email']}' may not exist in Juice Shop. "

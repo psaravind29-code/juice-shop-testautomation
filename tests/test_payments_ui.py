@@ -35,21 +35,28 @@ def test_add_card_ui(driver):
     card_number = f"411111111111{last4}"
     
     # Navigate directly to Payment Methods page (authenticated from login fixture)
+    print("\n=== Test: Navigate to Payment Methods ===")
+    print("→ Navigating to Payment Methods page...")
     driver.get(f"{BASE_URL}/#/PaymentMethods")
     time.sleep(2)
+    print("✓ Page loaded")
     
     # Remove overlays
+    print("→ Removing overlays...")
     _remove_overlays(driver)
     time.sleep(1)
+    print("✓ Overlays removed")
     
     # Verify we're on the Payment Methods page by checking page source
     page_source = driver.page_source
     
     # Page should contain payment-related content
+    print("→ Checking page content...")
     assert "Payment" in page_source or "payment" in page_source, (
         "Payment Methods page content not found. "
         f"Current URL: {driver.current_url}"
     )
+    print("✓ Page contains payment content\n")
     
     # Try to find and fill a payment form if it exists
     try:
