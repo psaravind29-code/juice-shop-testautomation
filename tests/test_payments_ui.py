@@ -45,7 +45,7 @@ def test_add_card_ui(driver):
     _remove_overlays(driver)
     time.sleep(0.8)
 
-    # Verify we're on the Payment Methods page by checking page source
+    # Verify we are on the Payment Methods page by checking page source
     page_source = driver.page_source
     assert "Payment" in page_source or "payment" in page_source, (
         "Payment Methods page content not found. "

@@ -231,4 +231,4 @@ def login(driver, user):
 
     yield
 
-    # Test execution complete - no additional cleanup needed
+    # Test execution complete - no additional cleanup required

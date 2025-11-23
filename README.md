@@ -4,7 +4,7 @@ A professional-grade pytest-based test automation framework for OWASP Juice Shop
 
 ---
 
-## 📌 What's Included
+## 📌 What's Added
 
 ### Three Core Test Tasks
 
