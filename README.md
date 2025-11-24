@@ -114,30 +114,28 @@ juice-shop-testautomation/
 │
 ├── tests/
 │   ├── conftest.py                 # Task 1: Auto-login fixture (XPath locators)
-│   ├── test_payments_ui.py          # Task 2: UI navigation test (XPath)
-│   ├── test_api.py                  # Task 3: API authentication test
-│   └── new-user.json                # Test credentials (gitignored)
+│   ├── test_payments_ui.py         # Task 2: UI navigation test (XPath)
+│   ├── test_api.py                 # Task 3: API authentication test
+│   └── new-user.json               # Test credentials (gitignored)
 │
 ├── pages/
-│   ├── base_page.py                 # Page object base class
-│   ├── login_page.py                # Login page object
-│   ├── home_page.py                 # Home page object
-│   └── payments_page.py              # Payments page object
+│   ├── base_page.py                # Page object base class
+│   ├── login_page.py               # Login page object
+│   ├── home_page.py                # Home page object
+│   └── payments_page.py             # Payments page object
 │
 ├── utils/
-│   └── config.py                    # Configuration helpers
+│   └── config.py                   # Configuration helpers
 │
-├── Documentation/
-│   ├── TEST_PLAN.md                 # Test planning document
-│   ├── TEST_RESULTS.md              # Test execution results
-│   ├── SETUP_GUIDE.md               # Setup & troubleshooting
-│   ├── QA_CHECKLIST.md              # QA verification checklist
-│   └── SUBMISSION.md                # Team lead submission guide
+├── Documentation Files (root level)
+│   ├── TEST_PLAN.md                # Test planning document
+│   ├── TEST_RESULTS.md             # Test execution results
+│   ├── SETUP_GUIDE.md              # Setup & troubleshooting
+│   └── QA_CHECKLIST.md             # QA verification checklist
 │
-├── requirements.txt                 # Python dependencies (pinned versions)
-├── README.md                        # This file
-└── .gitignore                       # Git ignore rules
-
+├── requirements.txt                # Python dependencies (pinned versions)
+├── README.md                       # This file
+└── .gitignore                      # Git ignore rules
 ```
 
 ---
